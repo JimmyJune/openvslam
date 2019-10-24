@@ -146,30 +146,40 @@ void viewer::run() {
         pangolin::FinishFrame();
 
         // octDPSNet get image sequences with camera pose
+        int button_num = -1;
         if( pangolin::Pushed(*menu_addimg1_)){
             std::cout << "Left image added" << std::endl;
-            std::cout << gl_cam_pose_wc << std::endl;
-            savePose(slam_folder + "/img1.txt", gl_cam_pose_wc);
-            cv::Mat img_color;
-            frame_publisher_->get_current_color_image(img_color);
-            cv::imwrite(slam_folder + "/img1.jpg", img_color);
+            button_num = 0;
         }
         if( pangolin::Pushed(*menu_addimg2_)){
             std::cout << "Center image added" << std::endl;
-            std::cout << gl_cam_pose_wc << std::endl;
-            savePose(slam_folder + "/img2.txt", gl_cam_pose_wc);
-            cv::Mat img_color;
-            frame_publisher_->get_current_color_image(img_color);
-            cv::imwrite(slam_folder + "/img2.jpg", img_color);
+            button_num = 1;
         }
         if( pangolin::Pushed(*menu_addimg3_)){
             std::cout << "Right image added" << std::endl;
+            button_num = 2;
+        }
+        if (button_num!=-1){
             std::cout << gl_cam_pose_wc << std::endl;
-            savePose(slam_folder + "/img3.txt", gl_cam_pose_wc);
+            std::stringstream ss;
+            std::string _fname;
+            ss << slam_folder << "/img";
+            ss << std::setw(3) << std::setfill('0') << button_num << ".txt";
+            ss >> _fname;
+            savePose(_fname, gl_cam_pose_wc);
             cv::Mat img_color;
             frame_publisher_->get_current_color_image(img_color);
-            cv::imwrite(slam_folder + "/img3.jpg", img_color);
+
+            ss.clear();
+            ss << slam_folder << "/img";
+            ss << std::setw(3) << std::setfill('0') << button_num << ".jpg";
+            ss >> _fname;
+            cv::imwrite(_fname, img_color);
         }
+        if( pangolin::Pushed(*menu_reset_seqnum_)){
+            img_seq_num = 0;
+        }
+        *menu_seqnum_ = img_seq_num;
 
         // 2. draw the current frame image
 
@@ -222,6 +232,8 @@ void viewer::create_menu_panel() {
     menu_addimg1_ = std::unique_ptr<pangolin::Var<bool>>(new pangolin::Var<bool>("menu.Add left image", false, false));
     menu_addimg2_ = std::unique_ptr<pangolin::Var<bool>>(new pangolin::Var<bool>("menu.Add center image", false, false));
     menu_addimg3_ = std::unique_ptr<pangolin::Var<bool>>(new pangolin::Var<bool>("menu.Add right image", false, false));
+    menu_reset_seqnum_ = std::unique_ptr<pangolin::Var<bool>>(new pangolin::Var<bool>("menu.Reset sequence num", false, false));
+    menu_seqnum_ = std::unique_ptr<pangolin::Var<int>>(new pangolin::Var<int>("menu.Sequence number",0,0,0,false));
 }
 
 void viewer::follow_camera(const pangolin::OpenGlMatrix& gl_cam_pose_wc) {

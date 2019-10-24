@@ -166,7 +166,8 @@ private:
     std::unique_ptr<pangolin::Var<bool>> menu_addimg1_;
     std::unique_ptr<pangolin::Var<bool>> menu_addimg2_;
     std::unique_ptr<pangolin::Var<bool>> menu_addimg3_;
-
+    std::unique_ptr<pangolin::Var<bool>> menu_reset_seqnum_;
+    std::unique_ptr<pangolin::Var<int>> menu_seqnum_;
 
     // camera renderer
     std::unique_ptr<pangolin::OpenGlRenderState> s_cam_;
