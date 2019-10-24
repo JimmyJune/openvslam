@@ -79,6 +79,7 @@ Mat44_t tracking_module::track_monocular_image(const cv::Mat& img, const double 
 
     // color conversion
     img_gray_ = img;
+    img_color_ = img;
     util::convert_to_grayscale(img_gray_, camera_->color_order_);
 
     // create current frame object

@@ -44,6 +44,13 @@ public:
      */
     cv::Mat draw_frame(const bool draw_text = true);
 
+    /**
+   * Get the current color image
+   */
+    void get_current_color_image(cv::Mat &img) const{
+        img = img_color_;
+    }
+
 protected:
     unsigned int draw_initial_points(cv::Mat& img, const std::vector<cv::KeyPoint>& init_keypts,
                                      const std::vector<int>& init_matches, const std::vector<cv::KeyPoint>& curr_keypts,
@@ -73,6 +80,7 @@ protected:
 
     //! raw img
     cv::Mat img_;
+    cv::Mat img_color_;
     //! tracking state
     tracker_state_t tracking_state_;
 

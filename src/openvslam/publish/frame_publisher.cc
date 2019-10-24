@@ -183,6 +183,7 @@ void frame_publisher::update(tracking_module* tracker) {
     std::lock_guard<std::mutex> lock(mtx_);
 
     tracker->img_gray_.copyTo(img_);
+    tracker->img_color_.copyTo(img_color_);
 
     const auto num_curr_keypts = tracker->curr_frm_.num_keypts_;
     curr_keypts_ = tracker->curr_frm_.keypts_;

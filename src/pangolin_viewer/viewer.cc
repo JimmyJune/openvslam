@@ -26,7 +26,43 @@ viewer::viewer(const std::shared_ptr<openvslam::config>& cfg, openvslam::system*
       camera_line_width_(cfg->yaml_node_["PangolinViewer.camera_line_width"].as<unsigned int>(2)),
       cs_(cfg->yaml_node_["PangolinViewer.color_scheme"].as<std::string>("black")),
       mapping_mode_(system->mapping_module_is_enabled()),
-      loop_detection_mode_(system->loop_detector_is_enabled()) {}
+      loop_detection_mode_(system->loop_detector_is_enabled()) {
+
+    // Save image, pose, camera matrix
+    slam_folder = "../fromSLAM";
+    std::ofstream myfile;
+    myfile.open (slam_folder + "/camera.txt");
+    const auto model_type_str = cfg->yaml_node_["Camera.model"].as<std::string>();
+
+    if (model_type_str == "perspective") {
+        double fx, fy, cx, cy, k1, k2, p1, p2, k3 ;
+        fx = cfg->yaml_node_["Camera.fx"].as<double>();
+        fy = cfg->yaml_node_["Camera.fy"].as<double>();
+        cx = cfg->yaml_node_["Camera.cx"].as<double>();
+        cy = cfg->yaml_node_["Camera.cy"].as<double>();
+        k1 = cfg->yaml_node_["Camera.k1"].as<double>();
+        k2 = cfg->yaml_node_["Camera.k2"].as<double>();
+        p1 = cfg->yaml_node_["Camera.p1"].as<double>();
+        p2 = cfg->yaml_node_["Camera.p2"].as<double>();
+        k3 = cfg->yaml_node_["Camera.k3"].as<double>();
+
+        myfile << fx << " " << fy << " "<< cx << " "<< cy << " ";
+        myfile << k1 << " " << k2 << " "<< p1 << " "<< p2 << " "<< k3 << std::endl;
+    }else if (model_type_str == "fisheye") {
+        double fx, fy, cx, cy, k1, k2, k3, k4 ;
+        fx = cfg->yaml_node_["Camera.fx"].as<double>();
+        fy = cfg->yaml_node_["Camera.fy"].as<double>();
+        cx = cfg->yaml_node_["Camera.cx"].as<double>();
+        cy = cfg->yaml_node_["Camera.cy"].as<double>();
+        k1 = cfg->yaml_node_["Camera.k1"].as<double>();
+        k2 = cfg->yaml_node_["Camera.k2"].as<double>();
+        k3 = cfg->yaml_node_["Camera.k3"].as<double>();
+        k4 = cfg->yaml_node_["Camera.k4"].as<double>();
+        myfile << fx << " " << fy << " "<< cx << " "<< cy << " ";
+        myfile << k1 << " " << k2 << " "<< k3 << " "<< k4 << std::endl;
+    }
+    myfile.close();
+}
 
 void viewer::run() {
     is_terminated_ = false;
@@ -58,6 +94,30 @@ void viewer::run() {
     pangolin::OpenGlMatrix gl_cam_pose_wc;
     gl_cam_pose_wc.SetIdentity();
 
+    // octDPSNet get image sequences with camera pose
+    int img_seq_num = 0;
+
+    pangolin::RegisterKeyPressCallback('s', [&](){
+        std::cout << "Image sequence " << img_seq_num << " added" << std::endl;
+        std::cout << gl_cam_pose_wc << std::endl;
+        std::stringstream ss;
+        std::string _fname;
+        ss << slam_folder << "/seq_img";
+        ss << std::setw(3) << std::setfill('0') << img_seq_num << ".txt";
+        ss >> _fname;
+        savePose(_fname, gl_cam_pose_wc);
+        cv::Mat img_color;
+        frame_publisher_->get_current_color_image(img_color);
+
+        ss.clear();
+        ss << slam_folder << "/seq_img";
+        ss << std::setw(3) << std::setfill('0') << img_seq_num << ".jpg";
+        ss >> _fname;
+        cv::imwrite(_fname, img_color);
+
+        img_seq_num ++;
+    });
+
     while (true) {
         // clear buffer
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -84,6 +144,32 @@ void viewer::run() {
         draw_landmarks();
 
         pangolin::FinishFrame();
+
+        // octDPSNet get image sequences with camera pose
+        if( pangolin::Pushed(*menu_addimg1_)){
+            std::cout << "Left image added" << std::endl;
+            std::cout << gl_cam_pose_wc << std::endl;
+            savePose(slam_folder + "/img1.txt", gl_cam_pose_wc);
+            cv::Mat img_color;
+            frame_publisher_->get_current_color_image(img_color);
+            cv::imwrite(slam_folder + "/img1.jpg", img_color);
+        }
+        if( pangolin::Pushed(*menu_addimg2_)){
+            std::cout << "Center image added" << std::endl;
+            std::cout << gl_cam_pose_wc << std::endl;
+            savePose(slam_folder + "/img2.txt", gl_cam_pose_wc);
+            cv::Mat img_color;
+            frame_publisher_->get_current_color_image(img_color);
+            cv::imwrite(slam_folder + "/img2.jpg", img_color);
+        }
+        if( pangolin::Pushed(*menu_addimg3_)){
+            std::cout << "Right image added" << std::endl;
+            std::cout << gl_cam_pose_wc << std::endl;
+            savePose(slam_folder + "/img3.txt", gl_cam_pose_wc);
+            cv::Mat img_color;
+            frame_publisher_->get_current_color_image(img_color);
+            cv::imwrite(slam_folder + "/img3.jpg", img_color);
+        }
 
         // 2. draw the current frame image
 
@@ -133,6 +219,9 @@ void viewer::create_menu_panel() {
     menu_terminate_ = std::unique_ptr<pangolin::Var<bool>>(new pangolin::Var<bool>("menu.Terminate", false, false));
     menu_frm_size_ = std::unique_ptr<pangolin::Var<float>>(new pangolin::Var<float>("menu.Frame Size", 1.0, 1e-1, 1e1, true));
     menu_lm_size_ = std::unique_ptr<pangolin::Var<float>>(new pangolin::Var<float>("menu.Landmark Size", 1.0, 1e-1, 1e1, true));
+    menu_addimg1_ = std::unique_ptr<pangolin::Var<bool>>(new pangolin::Var<bool>("menu.Add left image", false, false));
+    menu_addimg2_ = std::unique_ptr<pangolin::Var<bool>>(new pangolin::Var<bool>("menu.Add center image", false, false));
+    menu_addimg3_ = std::unique_ptr<pangolin::Var<bool>>(new pangolin::Var<bool>("menu.Add right image", false, false));
 }
 
 void viewer::follow_camera(const pangolin::OpenGlMatrix& gl_cam_pose_wc) {

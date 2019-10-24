@@ -163,6 +163,10 @@ private:
     std::unique_ptr<pangolin::Var<bool>> menu_terminate_;
     std::unique_ptr<pangolin::Var<float>> menu_frm_size_;
     std::unique_ptr<pangolin::Var<float>> menu_lm_size_;
+    std::unique_ptr<pangolin::Var<bool>> menu_addimg1_;
+    std::unique_ptr<pangolin::Var<bool>> menu_addimg2_;
+    std::unique_ptr<pangolin::Var<bool>> menu_addimg3_;
+
 
     // camera renderer
     std::unique_ptr<pangolin::OpenGlRenderState> s_cam_;
@@ -199,6 +203,20 @@ private:
     bool terminate_is_requested_ = false;
     //! flag which indicates whether the main loop is terminated or not
     bool is_terminated_ = true;
+
+    //! folder name for images, poses, and camera matrix for octDPSNet
+    std::string slam_folder;
+
+    void savePose(std::string fname, pangolin::OpenGlMatrix& mat) {
+        std::ofstream myfile;
+        myfile.open (fname);
+        for (int r = 0; r < 4; ++r) {
+            for (int c = 0; c < 4; ++c) {
+                myfile << mat(r, c) << " ";
+            }
+        }
+        myfile.close();
+    };
 };
 
 inline void viewer::draw_line(const float x1, const float y1, const float z1,
