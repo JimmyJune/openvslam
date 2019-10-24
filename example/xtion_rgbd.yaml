@@ -1,0 +1,45 @@
+# Xtion Pro
+
+#==============#
+# Camera Model #
+#==============#
+
+Camera.name: "Xtion"
+Camera.setup: "RGBD"
+Camera.model: "perspective"
+
+Camera.fx: 547.0018330669654
+Camera.fy: 547.3952185946139
+Camera.cx: 312.645718829668
+Camera.cy: 241.043019828135
+
+Camera.k1: 0.0544176380293147
+Camera.k2: -0.15231447208450855
+Camera.p1: 0.000798939764483238
+Camera.p2: -0.0012991727534319311
+Camera.k3: 0.030244238131163267
+
+Camera.fps: 30
+Camera.cols: 640
+Camera.rows: 480
+
+Camera.focal_x_baseline: 40.0
+Camera.color_order: "BGR"
+
+#================#
+# ORB Parameters #
+#================#
+
+Feature.max_num_keypoints: 1000
+Feature.scale_factor: 1.2
+Feature.num_levels: 8
+Feature.ini_fast_threshold: 20
+Feature.min_fast_threshold: 7
+
+#=====================#
+# Tracking Parameters #
+#=====================#
+
+depth_threshold: 40.0
+depthmap_factor: 1000.0
+

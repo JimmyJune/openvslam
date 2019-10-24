@@ -35,6 +35,31 @@ list(APPEND EXECUTABLE_TARGETS run_camera_slam)
 # add_executable(run_tum_rgbd_slam run_tum_rgbd_slam.cc util/tum_rgbd_util.cc)
 # list(APPEND EXECUTABLE_TARGETS run_tum_rgbd_slam)
 
+set(USE_XTION ON)
+if(USE_XTION)
+    ######################################################################
+    # OpenNI2
+    find_path(OPENNI2_INCLUDE_DIR OpenNI.h
+            PATHS "$ENV{OPENNI2_INCLUDE${OPENNI2_SUFFIX}}"  # Win64 needs '64' suffix
+            "/usr/include/openni2"                    # common path for deb packages
+            PATH_SUFFIXES include/openni2
+            )
+
+    find_library(OPENNI2_LIBRARY
+            NAMES OpenNI2      # No suffix needed on Win64
+            libOpenNI2   # Linux
+            PATHS "$ENV{OPENNI2_LIB${OPENNI2_SUFFIX}}"   # Windows default path, Win64 needs '64' suffix
+            "/home/komatsu/dev/OpenNI2/Bin/x64-Release"                 # Linux install does not use a separate 'lib' directory
+            )
+    message(STATUS " OpenNI2 : ${OPENNI2_LIBRARY}")
+    ######################################################################
+
+    add_executable(run_xtion_slam run_xtion_slam.cc)
+    list(APPEND EXECUTABLE_TARGETS run_xtion_slam)
+    target_include_directories(run_xtion_slam PRIVATE ${OPENNI2_INCLUDE_DIR})
+    target_link_libraries(run_xtion_slam PRIVATE ${OPENNI2_LIBRARY})
+endif()
+
 foreach(EXECUTABLE_TARGET IN LISTS EXECUTABLE_TARGETS)
     # set output directory for executables
     set_target_properties(${EXECUTABLE_TARGET} PROPERTIES

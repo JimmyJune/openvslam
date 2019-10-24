@@ -103,6 +103,7 @@ Mat44_t tracking_module::track_stereo_image(const cv::Mat& left_img_rect, const 
 
     // color conversion
     img_gray_ = left_img_rect;
+    img_color_ = left_img_rect;
     cv::Mat right_img_gray = right_img_rect;
     util::convert_to_grayscale(img_gray_, camera_->color_order_);
     util::convert_to_grayscale(right_img_gray, camera_->color_order_);
@@ -123,6 +124,7 @@ Mat44_t tracking_module::track_RGBD_image(const cv::Mat& img, const cv::Mat& dep
 
     // color and depth scale conversion
     img_gray_ = img;
+    img_color_ = img;
     cv::Mat img_depth = depthmap;
     util::convert_to_grayscale(img_gray_, camera_->color_order_);
     util::convert_to_true_depth(img_depth, cfg_->depthmap_factor_);
