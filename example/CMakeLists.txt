@@ -8,32 +8,53 @@ endif()
 
 set(EXECUTABLE_TARGETS "")
 
-add_executable(run_camera_slam run_camera_slam.cc)
-list(APPEND EXECUTABLE_TARGETS run_camera_slam)
+# ##############################################################################
+# Spinnaker SDK
+if(WIN32)
+    set(Spinnaker_LIBS "Spinnakerd_$(PlatformToolset).lib")
+    set(Spinnaker_INCLUDE_DIR
+            "C:/Program Files/Point Grey Research/Spinnaker/include")
+    link_directories(
+            "C:/Program Files/Point Grey Research/Spinnaker/lib64/vs2015")
+endif(WIN32)
+if(UNIX)
+    add_definitions(-DLINUX)
+    set(Spinnaker_LIBS "libSpinnaker.so")
+    set(Spinnaker_INCLUDE_DIR "/usr/include/spinnaker")
+    link_directories("/usr/lib")
+endif(UNIX)
+add_executable(run_spincamera_slam run_spincamera_slam.cc SpinnakerVideoCapture/c++/SpinCap/spincamera.cpp)
+target_link_libraries(run_spincamera_slam PRIVATE ${Spinnaker_LIBS})
+target_include_directories(run_spincamera_slam PRIVATE
+        ${Spinnaker_INCLUDE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/SpinnakerVideoCapture/c++")
+list(APPEND EXECUTABLE_TARGETS run_spincamera_slam)
 
-add_executable(run_camera_localization run_camera_localization.cc)
-list(APPEND EXECUTABLE_TARGETS run_camera_localization)
+#add_executable(run_camera_slam run_camera_slam.cc)
+#list(APPEND EXECUTABLE_TARGETS run_camera_slam)
 
+#add_executable(run_camera_localization run_camera_localization.cc)
+#list(APPEND EXECUTABLE_TARGETS run_camera_localization)
+#
 add_executable(run_image_slam run_image_slam.cc util/image_util.cc)
 list(APPEND EXECUTABLE_TARGETS run_image_slam)
 
-add_executable(run_image_localization run_image_localization.cc util/image_util.cc)
-list(APPEND EXECUTABLE_TARGETS run_image_localization)
+#add_executable(run_image_localization run_image_localization.cc util/image_util.cc)
+#list(APPEND EXECUTABLE_TARGETS run_image_localization)
+#
+#add_executable(run_video_slam run_video_slam.cc)
+#list(APPEND EXECUTABLE_TARGETS run_video_slam)
+#
+#add_executable(run_video_localization run_video_localization.cc)
+#list(APPEND EXECUTABLE_TARGETS run_video_localization)
+#
+#add_executable(run_euroc_slam run_euroc_slam.cc util/euroc_util.cc)
+#list(APPEND EXECUTABLE_TARGETS run_euroc_slam)
 
-add_executable(run_video_slam run_video_slam.cc)
-list(APPEND EXECUTABLE_TARGETS run_video_slam)
-
-add_executable(run_video_localization run_video_localization.cc)
-list(APPEND EXECUTABLE_TARGETS run_video_localization)
-
-add_executable(run_euroc_slam run_euroc_slam.cc util/euroc_util.cc)
-list(APPEND EXECUTABLE_TARGETS run_euroc_slam)
-
-add_executable(run_kitti_slam run_kitti_slam.cc util/kitti_util.cc)
-list(APPEND EXECUTABLE_TARGETS run_kitti_slam)
-
-add_executable(run_tum_rgbd_slam run_tum_rgbd_slam.cc util/tum_rgbd_util.cc)
-list(APPEND EXECUTABLE_TARGETS run_tum_rgbd_slam)
+#add_executable(run_kitti_slam run_kitti_slam.cc util/kitti_util.cc)
+#list(APPEND EXECUTABLE_TARGETS run_kitti_slam)
+#
+#add_executable(run_tum_rgbd_slam run_tum_rgbd_slam.cc util/tum_rgbd_util.cc)
+#list(APPEND EXECUTABLE_TARGETS run_tum_rgbd_slam)
 
 foreach(EXECUTABLE_TARGET IN LISTS EXECUTABLE_TARGETS)
     # set output directory for executables

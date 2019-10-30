@@ -1,0 +1,3 @@
+[submodule "example/SpinnakerVideoCapture"]
+	path = example/SpinnakerVideoCapture
+	url = git@github.com:matsuren/SpinnakerVideoCapture.git
